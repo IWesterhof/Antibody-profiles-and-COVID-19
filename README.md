@@ -19,10 +19,9 @@ NTS and saliva samples were tested for SARS-CoV-2 by RT-PCR, using the TaqPath�
 
 To investigate the presence of antibodies, DBS were tested in a final dilution of 1:40 for immunoglobin G antibodies reactive with the target antigens using a multiplex protein microarray. Antibody binding was measured for the following human coronavirus targets: NL63 nucleocapsid protein (NP), S1 subunit, and S ectodomain; 229E NP and S1; HKU NP and S1; OC43 S ectodomain; as well as SARS-CoV-2 S1, NP, and S ectodomain. Recombinant spike proteins of S1 or the S ectodomain were expressed in HEK293 cells NP proteins were produced in Escherichia coli (for hCoV-OC43, hCoV-229E, hCoV-NL63, and hCoV-HKU1; Medix Biochemica, Espoo, Finland) or insect cells and baculovirus (SARS; Sino Biological, Beijing, China; Okba et al. 2020). More details about the laboratory process are given elsewhere (Sikkema et al., 2023) .
 
-For these analyses we selected all household members, excluding the index case, for which results from PCR testing of NTS and the baseline DBS sample results were available.
-
 References: 
 > Okba NMA, Müller MA, Li W, Wang C, GeurtsvanKessel CH, Corman VM et al. Severe Acute Respiratory Syndrome Coronavirus 2−Specific Antibody Responses in Coronavirus Disease Patients. Emerg Infect Dis 2020; 26: 1478–1488.
+
 > Sikkema RS, Bruin E de, Ramakers C, Bentvelsen R, Li W, Bosch B-J et al. Reduced Seasonal Coronavirus Antibody Responses in Children Following COVID-19 Mitigation Measures, The Netherlands. Viruses 2023; 15: 212.
 
 
@@ -45,7 +44,7 @@ The following R Version and packages that were used to analyze the data:
 - R Version 4.4.1
 > https://www.r-project.org/
 
-- R Studio Version Version 2024.04.2+764
+- R Studio Version 2024.04.2+764
 > https://rstudio.com/
 
 - readr R package Version 2.1.5
