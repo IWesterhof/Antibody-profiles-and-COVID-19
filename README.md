@@ -9,7 +9,7 @@ VERDI (SARS-coV2 variants Evaluation in pRegnancy and paeDIatrics cohorts) proje
 ## FUNDING
 IW, GR, and PB were supported by the VERDI project (101045989), funded by the European Union. Views and opinions expressed are however those of the author(s) only and do not necessarily reflect those of the European Union or the Health and Digital Executive Agency. Neither the European Union nor the granting authority can be held responsible for them. 
 
-## DATA 
+## Methods and Data 
 
 ### Study design and study population
 The VERDI-RECOVER household study was conducted in the Netherlands from January to March 2022 during the emergence of the Omicron BA.1/BA.2. The study protocol has been described elsewhere 11. In brief, households were eligible following a positive SARS-CoV-2 test result, either by rapid antigen detection assay or RT-PCR, in the household index case, and no positive test result among any of the other household members in the previous two weeks. Symptoms of household members were monitored on a daily basis by means of a symptom diary until 21 days after the last symptom onset. Study participants were asked to self-collect nose-throat swab (NTS) and saliva samples on days 0, 2, 4, 7, and 14, and upon onset of new COVID-19-related symptoms. Paired dried blood spots (DBS) were collected at enrollment and at least 4 weeks after enrollment or 10 days after the last symptom-onset. Additional data collection included COVID-19 vaccination status, SARS-CoV-2 infection history, and medical comorbidities, and was done using a questionnaire. 
