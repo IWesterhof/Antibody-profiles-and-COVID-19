@@ -1,7 +1,7 @@
 # Antibody-levels-and-COVID-19
 
-## DOI for this GitHub repository
-doi: http://doi.org/xxx/zenodo.xxx
+## DOI preprint manuscript
+doi: http://doi.org/xxx/
 
 ## PROJECT OVERVIEW
 VERDI (SARS-coV2 variants Evaluation in pRegnancy and paeDIatrics cohorts) project aims to generate improved evidence on the epidemiology, outcomes, prevention and treatment of variants of SARS-CoV-2 amongst children and pregnant women as a global response to the pandemic, involving cohort studies from diverse geographic and economic settings. 
