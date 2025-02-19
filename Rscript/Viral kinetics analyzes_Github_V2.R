@@ -14,10 +14,6 @@ Sys.setlocale(locale="English")
 pacman::p_load(readr, tidyverse, magrittr,  dplyr, devtools, 
                reshape2,  ggplot2, gtsummary, arsenal, cowplot)
 
-########## Prep session ########## 
-rm(list = ls())
-Sys.setlocale(locale="English")
-
 ## Work directories
 base.dir    <- "~/Networkshares/datamanagement/Research/ID/VERDI/E_ResearchData/0_DataPreparation/Rproject Antibodies and disease burden"
 data.dir    <- file.path(base.dir, "01_Data")
@@ -138,7 +134,7 @@ table1data %>% ggplot() + geom_boxplot(aes(Vaccinated, `SARS-CoV-2 WT S1_start`)
 Coprimary = AllParticipants %>% select(ref_id, coprimary)
 Infection = merge(AllParticipants_Infection, AgeIndex, by="household_id", all=T) %>%  
   group_by(household_id) %>% mutate(household_idnr = cur_group_id()) %>%  ungroup() %>%
-  select(ref_id, household_idnr, Age, Age_group, Age_index, Age_group_index, contains("_start"), SEC_TRANS) %>%
+  select(ref_id, household_idnr, Age, Age_group,  Age_group_index, contains("_start"), SEC_TRANS) %>%
   filter(!is.na(`SARS-S1_start`)) %>%
   mutate(across(c(`SARS2-ecto-T_start`, `SARS-CoV-2 WT S1_start`, `SARS-CoV-2 WT np_start`, `NL63-S1-T_start`, `NL63-ecto_start`, 
                   `229E-S1_start`, `229E-NP_start`, `HKU1-S1-mFc_start`, `HKU1-NP_start`, `OC43-ecto_start`),  ~ classify_based_on_median(.), .names = "{sub('_start$', '_median', .col)}")) %>%
@@ -149,13 +145,12 @@ Infection = merge(AllParticipants_Infection, AgeIndex, by="household_id", all=T)
          Cum_229E = rowSums(select(., contains("229E")) == 'high', na.rm=T),
          Cum_HKU1 = rowSums(select(., contains("HKU1")) == 'high', na.rm=T),
          Cum_OC43 = rowSums(select(., contains("OC43")) == 'high', na.rm=T),
-         SEC_TRANS2 = ifelse(SEC_TRANS == "Secondary transmission", 1, 0)) %>% 
-  filter(!is.na(Age_group_index))
+         SEC_TRANS2 = ifelse(SEC_TRANS == "Secondary transmission", 1, 0))# %>%  filter(!is.na(Age_group_index))
 Infection = merge(Infection, PriorInfection, by="ref_id", all=T); Infection = merge(Coprimary, Infection, by="ref_id", all=T)
 Infection <- Infection %>% filter(!is.na(SEC_TRANS)) %>%   group_by(household_idnr) %>%  mutate(coprimary_household = ifelse(any(coprimary == "Positief"), "yes", "no"), coprimary_household = ifelse(is.na(coprimary_household), "no", coprimary_household)) %>% ungroup()
 
 AnalysesNoCoprimary = Infection %>% filter(!coprimary=="Positief") %>% select(ref_id, coprimary) %>% rename(iscoprimary = coprimary)
-Infection = merge(Infection, AnalysesNoCoprimary, by="ref_id", all=T) %>% filter(!(is.na(iscoprimary) & SEC_TRANS=="Secondary transmission")) 
+#Infection = merge(Infection, AnalysesNoCoprimary, by="ref_id", all=T) %>% filter(!(is.na(iscoprimary) & SEC_TRANS=="Secondary transmission")) 
 
 Infection %>% filter(!is.na(Age)) %>% select(contains("Cum_"), coprimary_household, "SEC_TRANS") %>% 
   mutate(SEC_TRANS = factor(SEC_TRANS, levels = c("Secondary transmission", "No secondary transmission"))) %>% 
@@ -166,9 +161,9 @@ Infection %>% filter(!is.na(Age)) %>% select(contains("Cum_"), coprimary_househo
 # GEE with clustering at household level 
 library(geepack)
 Infection <- na.omit(subset(Infection, select = c(ref_id, household_idnr, SEC_TRANS2, Age, Age_group_index, coprimary_household,
-                                                  Cum_alpha, Cum_beta, Cum_beta_noSC2, Cum_SARS2, Cum_NL63, Cum_229E, Cum_HKU1, Cum_OC43,
+                                                  Cum_alpha, Cum_beta_noSC2, Cum_SARS2, Cum_NL63, Cum_229E, Cum_HKU1, Cum_OC43,
                                                   `SARS2-ecto-T_median`, `SARS-CoV-2 WT np_median`, `SARS-CoV-2 WT S1_median`))) 
-geeglm(SEC_TRANS2 ~ coprimary_household + Cum_SARS2 + Age + Age_group_index, 
+geeglm(SEC_TRANS2 ~  Cum_beta_noSC2 + Cum_SARS2 + Age + Age_group_index, 
        id = household_idnr, data = Infection, family = binomial(link = logit), corstr = "exchangeable") %>% 
        tbl_regression(exponentiate = TRUE)   %>%   as_flex_table()  
 
@@ -199,11 +194,11 @@ sub = merge(AllParticipants, AgeIndex, by="household_id", all=T) %>%
 sub %>% select(contains(c("Diseaseseverity", "cumSeverityscore", "DaysWSympt")), coprimary) %>%
   tbl_summary(by = coprimary, missing = "no", statistic = all_continuous() ~ c("{mean} ({sd})")) 
 
-model = nnet::multinom(Diseaseseverity ~ Cum_OC43 + Cum_SARS2 + Age + Age_group_index, data = sub)
+model = nnet::multinom(Diseaseseverity ~ Cum_beta_noSC2 + Cum_SARS2 + Age + Age_group_index, data = sub)
 model2 = nnet::multinom(Diseaseseverity ~ Cum_SARS2 + Age + Age_group_index, data = sub)
 tbl_regression(model, exponentiate=T); lr_test <- lmtest::lrtest(model, model2); cat("\nOverall p-value:", round(lr_test$Pr[2], digits = 2))
-tbl_regression(lm(cumSeverityscore~ Cum_OC43 + Cum_SARS2 + Age + Age_group_index, data=sub))
-tbl_regression(lm(DaysWSympt~ Cum_OC43 + Cum_SARS2 + Age + Age_group_index, data=sub))
+tbl_regression(lm(cumSeverityscore~ Cum_beta_noSC2 + Cum_SARS2 + Age + Age_group_index, data=sub))
+tbl_regression(lm(DaysWSympt~ Cum_beta_noSC2 + Cum_SARS2 + Age + Age_group_index, data=sub))
 
 #### Table 4. CT-value trajectories in SARS-CoV-2 infected subjects by baseline antibody status for different coronaviruses; adjusted mean difference per one level increase in cumulative antibody score.  ####
 nts <- Viralkinetics %>% filter(sample_type=="nts") #
@@ -211,16 +206,16 @@ nts = merge(nts, AnalysesNoCoprimary, by="ref_id", all=T) %>% #filter(!is.na(cop
   select(contains(c("sample_type", "Cum_", "Peak_ct", "durationbelow", "Age", "Age_group_index", "_median")))  
 nts %>% select(contains(c("Peak_ct", "durationbelow")), sample_type) %>%
   tbl_summary(by = sample_type, missing = "no", statistic = all_continuous() ~ c("{mean} ({sd})")) 
-tbl_regression(glm(as.numeric(Peak_ct)                   ~ Cum_OC43 + Cum_SARS2 + Age + Age_group_index, data=nts)) 
+tbl_regression(glm(as.numeric(Peak_ct)                   ~ Cum_beta_noSC2 + Cum_SARS2 + Age + Age_group_index, data=nts)) 
 
 ##  Survival analysis
 library(survival)
 survival_data <- nts %>%  mutate(
-    status = ifelse(is.na(durationbelow30), 0, 1),  
-    time = ifelse(is.na(durationbelow30), max(durationbelow30, na.rm = TRUE), durationbelow30)) 
+    status = ifelse(is.na(durationbelow40), 0, 1),  
+    time = ifelse(is.na(durationbelow40), max(durationbelow40, na.rm = TRUE), durationbelow40)) 
 survival_data$`OC43-ecto_median` <- relevel(factor(survival_data$`OC43-ecto_median`), ref = "low") # Define reference category
 surv_obj <- Surv(time = survival_data$time, event = survival_data$status)
-cox_model <- coxph(surv_obj ~ `OC43-ecto_median` + Cum_SARS2 + Age + Age_group_index, data = survival_data); summary_cox <- summary(cox_model)
+cox_model <- coxph(surv_obj ~ Cum_SARS2 + Age + Age_group_index, data = survival_data); summary_cox <- summary(cox_model)
 first_row <- summary_cox$coefficients[1, ]; conf_int_first <- summary_cox$conf.int[1, c("lower .95", "upper .95")]; data.frame(Variable = rownames(summary_cox$coefficients)[1],
   HR = round(first_row["exp(coef)"], 2),  `95% CI Lower` = round(conf_int_first["lower .95"], 2),  `95% CI Upper` = round(conf_int_first["upper .95"], 3),  p_value = round(first_row["Pr(>|z|)"], 2))
 
